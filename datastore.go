@@ -122,8 +122,8 @@ var _ ds.TxnDatastore = (*Datastore)(nil)
 var _ ds.TTLDatastore = (*Datastore)(nil)
 var _ ds.GCDatastore = (*Datastore)(nil)
 var _ ds.Batching = (*Datastore)(nil)
-var _ dsextensions.QueryExtensions = (*Datastore)(nil)
-var _ dsextensions.QueryExtensions = (*txn)(nil)
+var _ dsextensions.DatastoreExtensions = (*Datastore)(nil)
+var _ dsextensions.TxnExt = (*txn)(nil)
 
 // NewDatastore creates a new badger datastore.
 //
@@ -214,6 +214,17 @@ func (d *Datastore) periodicGC() {
 // can be mutated without incurring changes to the underlying Datastore until
 // the transaction is Committed.
 func (d *Datastore) NewTransaction(readOnly bool) (ds.Txn, error) {
+	return d.newTransaction(readOnly)
+}
+
+// NewTransactionExtended starts a new transaction with dsextensions capabilities. The resulting transaction object
+// can be mutated without incurring changes to the underlying Datastore until
+// the transaction is Committed.
+func (d *Datastore) NewTransactionExtended(readOnly bool) (dsextensions.TxnExt, error) {
+	return d.newTransaction(readOnly)
+}
+
+func (d *Datastore) newTransaction(readOnly bool) (dsextensions.TxnExt, error) {
 	d.closeLk.RLock()
 	defer d.closeLk.RUnlock()
 	if d.closed {
