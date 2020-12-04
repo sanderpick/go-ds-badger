@@ -1,13 +1,11 @@
 module github.com/textileio/go-ds-badger
 
-replace github.com/textileio/go-datastore-extensions => ../go-datastore-extensions
-
 require (
 	github.com/dgraph-io/badger v1.6.2
 	github.com/ipfs/go-datastore v0.4.5
 	github.com/ipfs/go-log/v2 v2.0.5
 	github.com/jbenet/goprocess v0.1.4
-	github.com/textileio/go-datastore-extensions v1.0.0
+	github.com/textileio/go-datastore-extensions v1.0.1
 )
 
 go 1.13
