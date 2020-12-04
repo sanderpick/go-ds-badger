@@ -122,7 +122,8 @@ var _ ds.TxnDatastore = (*Datastore)(nil)
 var _ ds.TTLDatastore = (*Datastore)(nil)
 var _ ds.GCDatastore = (*Datastore)(nil)
 var _ ds.Batching = (*Datastore)(nil)
-var _ dsextensions.ExtendedDatastore = (*Datastore)(nil)
+var _ dsextensions.QueryExtensions = (*Datastore)(nil)
+var _ dsextensions.QueryExtensions = (*txn)(nil)
 
 // NewDatastore creates a new badger datastore.
 //
@@ -694,6 +695,16 @@ func (t *txn) Query(q dsq.Query) (dsq.Results, error) {
 
 	qe := dsextensions.QueryExt{Query: q}
 	return t.query(qe)
+}
+
+func (t *txn) QueryExtended(q dsextensions.QueryExt) (dsq.Results, error) {
+	t.ds.closeLk.RLock()
+	defer t.ds.closeLk.RUnlock()
+	if t.ds.closed {
+		return nil, ErrClosed
+	}
+
+	return t.query(q)
 }
 
 func (t *txn) query(q dsextensions.QueryExt) (dsq.Results, error) {
